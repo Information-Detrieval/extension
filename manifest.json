@@ -1,0 +1,11 @@
+{
+    "name": "Detrieval",
+    "version": "1.0.0",
+    "description": "",
+    "manifest_version": 3,
+    "author": "Aditya Pratap Singh",
+    "action":{
+        "default_popup": "index.html",
+        "default_title": "Get help"
+    }
+}
