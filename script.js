@@ -83,4 +83,8 @@ function random(min, max) {
   }).then(()=>{
     console.log('Scraping done for ', tab.url);
   })
+  const tabs = await chrome.tabs.query({currentWindow: true});
+
+  console.log("All URLs in current window: ", tabs.map(tab => tab.url))
+  // console.log("Not currently sending all URLs due to resource constraints")
 })();

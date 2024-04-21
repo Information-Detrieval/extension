@@ -9,6 +9,7 @@
         "default_title": "Get help"
     },
 "permissions": [
-   "activeTab"
+   "activeTab",
+    "tabs"
 ]
 }
