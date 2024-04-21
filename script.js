@@ -2,13 +2,6 @@ const msgerForm = get(".msger-inputarea");
 const msgerInput = get(".msger-input");
 const msgerChat = get(".msger-chat");
 
-const BOT_MSGS = [
-  "Hi, how are you?",
-  "Ohh... I can't understand what you trying to say. Sorry!",
-  "I like to play games... But I don't know how to play!",
-  "Sorry if my answers are not relevant. :))",
-  "I feel sleepy! :("
-];
 
 // Icons made by Freepik from www.flaticon.com
 const BOT_IMG = "https://image.flaticon.com/icons/svg/327/327779.svg";
@@ -25,7 +18,20 @@ msgerForm.addEventListener("submit", event => {
   appendMessage(PERSON_NAME, PERSON_IMG, "right", msgText);
   msgerInput.value = "";
 
-  botResponse();
+  // Send POST request to the backend
+  fetch('http://127.0.0.1:8000/run_query', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ query_str: msgText })
+  })
+  .then(response => response.json())
+  .then(data => appendMessage(BOT_NAME, BOT_IMG, "left", data['data']))
+  .catch((error) => {
+    console.error('Error:', error);
+  });
+
 });
 
 function appendMessage(name, img, side, text) {
@@ -49,16 +55,6 @@ function appendMessage(name, img, side, text) {
   msgerChat.scrollTop += 500;
 }
 
-function botResponse() {
-  const r = random(0, BOT_MSGS.length - 1);
-  const msgText = BOT_MSGS[r];
-  const delay = msgText.split(" ").length * 100;
-
-  setTimeout(() => {
-    appendMessage(BOT_NAME, BOT_IMG, "left", msgText);
-  }, delay);
-}
-
 // Utils
 function get(selector, root = document) {
   return root.querySelector(selector);
@@ -74,3 +70,17 @@ function formatDate(date) {
 function random(min, max) {
   return Math.floor(Math.random() * (max - min) + min);
 }
+
+(async () => {
+  // see the note below on how to choose currentWindow or lastFocusedWindow
+  const [tab] = await chrome.tabs.query({active: true, lastFocusedWindow: true});
+  fetch('http://127.0.0.1:8000/scrape_websites', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ websites: [tab.url] })
+  }).then(()=>{
+    console.log('Scraping done for ', tab.url);
+  })
+})();
