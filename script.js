@@ -9,6 +9,7 @@ const PERSON_IMG = "https://image.flaticon.com/icons/svg/145/145867.svg";
 const BOT_NAME = "Detrieval";
 const PERSON_NAME = "You";
 
+const conversation = []
 msgerForm.addEventListener("submit", event => {
   event.preventDefault();
 
@@ -24,10 +25,16 @@ msgerForm.addEventListener("submit", event => {
     headers: {
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify({ query_str: msgText })
+    body: JSON.stringify({ query_str: msgText,
+      convo: conversation.slice(Math.max(0,conversation.length-4), 4).join('\n')
+    })
   })
   .then(response => response.json())
-  .then(data => appendMessage(BOT_NAME, BOT_IMG, "left", data['data']))
+  .then(data => {
+    appendMessage(BOT_NAME, BOT_IMG, "left", data['data'])
+    conversation.push(`User: ${msgText}`)
+    // conversation.push(`Bot: ${data['data']}`)
+  })
   .catch((error) => {
     console.error('Error:', error);
   });
@@ -71,20 +78,20 @@ function random(min, max) {
   return Math.floor(Math.random() * (max - min) + min);
 }
 
-(async () => {
-  // see the note below on how to choose currentWindow or lastFocusedWindow
-  const [tab] = await chrome.tabs.query({active: true, lastFocusedWindow: true});
-  fetch('http://127.0.0.1:8000/scrape_websites', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({ websites: [tab.url] })
-  }).then(()=>{
-    console.log('Scraping done for ', tab.url);
-  })
-  const tabs = await chrome.tabs.query({currentWindow: true});
-
-  console.log("All URLs in current window: ", tabs.map(tab => tab.url))
-  // console.log("Not currently sending all URLs due to resource constraints")
-})();
+// (async () => {
+//   // see the note below on how to choose currentWindow or lastFocusedWindow
+//   const [tab] = await chrome.tabs.query({active: true, lastFocusedWindow: true});
+//   fetch('http://127.0.0.1:8000/scrape_websites', {
+//     method: 'POST',
+//     headers: {
+//       'Content-Type': 'application/json'
+//     },
+//     body: JSON.stringify({ websites: [tab.url] })
+//   }).then(()=>{
+//     console.log('Scraping done for ', tab.url);
+//   })
+//   const tabs = await chrome.tabs.query({currentWindow: true});
+//
+//   console.log("All URLs in current window: ", tabs.map(tab => tab.url))
+//   // console.log("Not currently sending all URLs due to resource constraints")
+// })();
